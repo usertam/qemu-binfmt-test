@@ -8,33 +8,20 @@ jobs:
   run:
     name: Run
     strategy:
+      matrix:
+        host: [run01, run02, run03, run04]
       fail-fast: false
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/github-script@v7
-      env:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
+    - uses: tailscale/github-action@v2
       with:
-        script: |
-          core.exportVariable('ACTIONS_CACHE_URL', process.env['ACTIONS_CACHE_URL'])
-          core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env['ACTIONS_RUNTIME_TOKEN'])
-          core.exportVariable('ACTIONS_RUNTIME_URL', process.env['ACTIONS_RUNTIME_URL'])
+        oauth-client-id: ${{secrets.TS_OAUTH_CLIENT_ID}}
+        oauth-secret: ${{secrets.TS_OAUTH_SECRET}}
+        hostname: ${{matrix.host}}
+        tags: tag:ci
     - name: Test
       run: |
-        echo "ACTIONS_CACHE_URL: $ACTIONS_CACHE_URL"
-        echo "ACTIONS_RUNTIME_TOKEN: $ACTIONS_RUNTIME_TOKEN"     
-        echo "ACTIONS_RUNTIME_URL: $ACTIONS_RUNTIME_URL"
-    - name: Check
-      run: |
-        curl -H "Authorization: Bearer $ACTIONS_RUNTIME_TOKEN" ${ACTIONS_CACHE_URL}_apis/artifactcache/caches
-    - name: Write
-      run: |
-        echo hello > hello
-    - uses: actions/cache@v3.3.3
-      with:
-        path: hello
-        key: hello
-    - name: Check
-      run: |
-        curl -H "Authorization: Bearer $ACTIONS_RUNTIME_TOKEN" ${ACTIONS_CACHE_URL}_apis/artifactcache/caches
-        
+        ping -c 4 run01
+        ping -c 4 run02
+        ping -c 4 run03
+        ping -c 4 run04
