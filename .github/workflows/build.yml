@@ -19,6 +19,9 @@ jobs:
         oauth-secret: ${{secrets.TS_OAUTH_SECRET}}
         hostname: ${{matrix.host}}
         tags: tag:ci
+    - name: Wait
+      run: |
+        sleep 30
     - name: Test
       run: |
         ping -c 4 run01
